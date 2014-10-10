@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Create a Map</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta name="viewport" content="initial-scale=1, maximum-scale=1,user-scalable=no">
+  <link rel="stylesheet" href="http://js.arcgis.com/3.10/js/dojo/dijit/themes/claro/claro.css">
+  <link rel="stylesheet" href="http://js.arcgis.com/3.10/js/esri/css/esri.css">
+  <style>
+    html, body, #mapDiv{
+      padding: 0;
+      margin: 0;
+      height: 100%;
+    }
+  </style>
+  <script src="http://js.arcgis.com/3.10/"></script>
+  <script>
+      var map, infoTemplate;
+      
+    require([
+          "esri/map",
+          "esri/layers/ArcGISDynamicMapServiceLayer",
+          "esri/tasks/IdentifyTask",
+          "esri/tasks/IdentifyParameters",
+          "esri/symbols/SimpleMarkerSymbol",
+          "esri/InfoTemplate",
+          "dojo/_base/Color",
+          "dojo/_base/array",
+          "esri/geometry/Extent", 
+          "esri/SpatialReference",
+           "dojo/on",
+          "dojo/domReady!"], function(Map, ArcGISDynamicMapServiceLayer, IdentifyTask, IdentifyParameters, SimpleMarkerSymbol, InfoTemplate, Color, arrayUtils, Extent, SpatialReference, on) {
+    
+        initialExtent = new Extent(172209.475904854, 3601359.1077277837, 985642.8725089643,  4064083.0555859907, new SpatialReference({
+                wkid: 26915  
+        }));
+        
+        map = new Map("mapDiv", { 
+            logo:false,
+            extent: initialExtent,
+            slider: true,
+            zoom: 8,
+            infoWindow: infoTemplate
+        });
+        
+        var aecam = new ArcGISDynamicMapServiceLayer("http://argis.ualr.edu/ieagis/rest/services/AECAM_MAP/MapServer",{
+    	            id: 'aecam',
+    	            outFields: ["*"],
+    	            opacity: 0.8
+            
+        });
+        map.addLayer(aecam);
+
+        identifyTask = new IdentifyTask("http://argis.ualr.edu/ieagis/rest/services/AECAM_MAP/MapServer");
+        
+        //initialize InfoTemplate
+        infoTemplate = new InfoTemplate("${NAME10}", "County : ${NAME10}<br/> FIPS :  ${STATEFP10}${COUNTYFP10}");
+
+        identifyParams = new IdentifyParameters();
+        identifyParams.tolerance = 10;
+        identifyParams.layerIds = [88];
+        identifyParams.returnGeometry = true;
+        identifyParams.width = map.width;
+        identifyParams.height = map.height;
+        
+        map.on("Click", executeIdentifyTask);
+        
+        function executeIdentifyTask (event) {
+          identifyParams.geometry = event.mapPoint;
+          identifyParams.mapExtent = map.extent;
+
+          var deferred = identifyTask
+            .execute(identifyParams)
+            .addCallback(function (response) {
+              // response is an array of identify result objects
+              // Let's return an array of features.
+              return arrayUtils.map(response, function (result) {
+                var feature = result.feature;
+                var layerName = result.layerName;
+
+                feature.setInfoTemplate(infoTemplate);
+                return feature;
+              });
+            });
+
+          // InfoWindow expects an array of features from each deferred
+          // object that you pass. If the response from the task execution
+          // above is not an array of features, then you need to add a callback
+          // like the one above to post-process the response and return an
+          // array of features.
+          map.infoWindow.setFeatures([deferred]);
+          map.infoWindow.show(event.mapPoint);
+        }
+    
+      });
+      
+  </script>
+
+</head>
+    <body class="claro">
+      <div id="mapDiv"></div>
+    </body>
+</html>

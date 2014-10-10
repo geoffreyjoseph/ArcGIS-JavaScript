@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Create a Map</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta name="viewport" content="initial-scale=1, maximum-scale=1,user-scalable=no">
+  <link rel="stylesheet" href="http://js.arcgis.com/3.10/js/dojo/dijit/themes/claro/claro.css">
+  <link rel="stylesheet" href="http://js.arcgis.com/3.10/js/esri/css/esri.css">
+  <style>
+    html, body, #mapDiv{
+      padding: 0;
+      margin: 0;
+      height: 100%;
+    }
+  </style>
+  <script src="http://js.arcgis.com/3.10/"></script>
+  <script>
+      var map;
+      
+    require([
+          "esri/map",
+          "esri/layers/ArcGISDynamicMapServiceLayer",
+          "esri/tasks/QueryTask",
+          "esri/tasks/query",
+          "esri/symbols/SimpleMarkerSymbol",
+          "esri/InfoTemplate",
+          "dojo/_base/Color",
+          "esri/geometry/Extent", 
+          "esri/SpatialReference",
+          "dojo/domReady!"], function(Map, ArcGISDynamicMapServiceLayer, QueryTask, Query, SimpleMarkerSymbol, InfoTemplate, Color, Extent, SpatialReference) {
+    
+        initialExtent = new Extent(172209.475904854, 3601359.1077277837, 985642.8725089643,  4064083.0555859907, new SpatialReference({
+                wkid: 26915  
+        }));
+        
+        map = new Map("mapDiv", { 
+            logo:false,
+            extent: initialExtent,
+            slider: true,
+            zoom: 8
+        });
+        
+        var aecam = new ArcGISDynamicMapServiceLayer("http://argis.ualr.edu/ieagis/rest/services/AECAM_MAP/MapServer",{
+    	            id: 'aecam',
+    	            outFields: ["*"],
+    	            opacity: 0.8
+            
+        });
+        map.addLayer(aecam);
+    
+
+            //initialize query task
+            queryTask = new QueryTask("http://argis.ualr.edu/ieagis/rest/services/AECAM_MAP/MapServer/88");
+    
+            //initialize query
+            query = new Query();
+            query.returnGeometry = true;
+            query.outFields = ["NAME10", "STATEFP10", "COUNTYFP10"];
+    
+            //initialize InfoTemplate
+            infoTemplate = new InfoTemplate("${NAME10}", "County : ${NAME10}<br/> FIPS :  ${STATEFP10}${COUNTYFP10}");
+    
+            //create symbol for selected features
+            symbol = new SimpleMarkerSymbol();
+            symbol.setStyle(SimpleMarkerSymbol.STYLE_SQUARE);
+            symbol.setSize(10);
+            symbol.setColor(new Color([255,255,0,0.5]));
+    
+      });
+      
+  </script>
+
+</head>
+    <body class="claro">
+      <div id="mapDiv"></div>
+    </body>
+</html>
