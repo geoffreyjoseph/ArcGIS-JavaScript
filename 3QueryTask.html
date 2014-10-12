@@ -22,12 +22,11 @@
           "esri/layers/ArcGISDynamicMapServiceLayer",
           "esri/tasks/QueryTask",
           "esri/tasks/query",
-          "esri/symbols/SimpleMarkerSymbol",
           "esri/InfoTemplate",
-          "dojo/_base/Color",
+          "dojo/_base/array",
           "esri/geometry/Extent", 
           "esri/SpatialReference",
-          "dojo/domReady!"], function(Map, ArcGISDynamicMapServiceLayer, QueryTask, Query, SimpleMarkerSymbol, InfoTemplate, Color, Extent, SpatialReference) {
+          "dojo/domReady!"], function(Map, ArcGISDynamicMapServiceLayer, QueryTask, Query, InfoTemplate, arrayUtils, Extent, SpatialReference) {
     
         initialExtent = new Extent(172209.475904854, 3601359.1077277837, 985642.8725089643,  4064083.0555859907, new SpatialReference({
                 wkid: 26915  
@@ -49,23 +48,43 @@
         map.addLayer(aecam);
     
 
-            //initialize query task
-            queryTask = new QueryTask("http://argis.ualr.edu/ieagis/rest/services/AECAM_MAP/MapServer/88");
-    
-            //initialize query
-            query = new Query();
-            query.returnGeometry = true;
-            query.outFields = ["NAME10", "STATEFP10", "COUNTYFP10"];
-    
-            //initialize InfoTemplate
-            infoTemplate = new InfoTemplate("${NAME10}", "County : ${NAME10}<br/> FIPS :  ${STATEFP10}${COUNTYFP10}");
-    
-            //create symbol for selected features
-            symbol = new SimpleMarkerSymbol();
-            symbol.setStyle(SimpleMarkerSymbol.STYLE_SQUARE);
-            symbol.setSize(10);
-            symbol.setColor(new Color([255,255,0,0.5]));
-    
+        //initialize query task
+        queryTask = new QueryTask("http://argis.ualr.edu/ieagis/rest/services/AECAM_MAP/MapServer/88");
+
+        //initialize query
+        query = new Query();
+        query.returnGeometry = true;
+        query.outFields = ["NAME10", "STATEFP10", "COUNTYFP10"];
+
+        //initialize InfoTemplate
+        infoTemplate = new InfoTemplate("${NAME10}", "County : ${NAME10}<br/> FIPS :  ${STATEFP10}${COUNTYFP10}");
+        
+        map.on("Click", executeQueryTask);
+        
+        function executeQueryTask(evt) {
+          query.geometry = evt.mapPoint;
+         
+          var deferred = queryTask.execute(query);
+  
+          deferred.addCallback(function(response) {
+            // response is a FeatureSet
+            // Let's return an array of features.
+            return dojo.map(response.features, function(feature) {
+              feature.setInfoTemplate(infoTemplate);
+              return feature;
+            });
+          });
+  
+         
+          // InfoWindow expects an array of features from each deferred
+          // object that you pass. If the response from the task execution 
+          // above is not an array of features, then you need to add a callback
+          // like the one above to post-process the response and return an
+          // array of features.
+          map.infoWindow.setFeatures([ deferred ]);
+          map.infoWindow.show(evt.mapPoint);
+       }
+          
       });
       
   </script>

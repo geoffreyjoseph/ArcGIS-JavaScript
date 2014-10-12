@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>5 Geocoder</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta name="viewport" content="initial-scale=1, maximum-scale=1,user-scalable=no">
+  <link rel="stylesheet" href="http://js.arcgis.com/3.10/js/dojo/dijit/themes/claro/claro.css">
+  <link rel="stylesheet" href="http://js.arcgis.com/3.10/js/esri/css/esri.css">
+  <style>
+    html, body, #mapDiv{
+      padding: 0;
+      margin: 0;
+      height: 100%;
+    }
+    #search {
+	      width: 450px;
+        display: block;
+        position: absolute;
+        z-index: 20;
+        top: 100px;
+        left: 30px;
+    }
+  </style>
+  
+  <script src="http://js.arcgis.com/3.10/"></script>
+  <script>
+    var map;
+    
+    require(["esri/map", 
+            "esri/layers/ArcGISDynamicMapServiceLayer", 
+            "esri/dijit/Geocoder",
+            "esri/symbols/SimpleFillSymbol",
+            "esri/symbols/SimpleLineSymbol",
+            "esri/tasks/IdentifyTask",
+            "esri/tasks/IdentifyParameters",
+            "esri/symbols/SimpleMarkerSymbol",
+            "esri/InfoTemplate",
+    		    "esri/graphic",
+            "esri/Color",
+            "dojo/_base/array",
+            "dojo/on",
+            "dojo/domReady!"], 
+    function(Map, ArcGISDynamicMapServiceLayer, Geocoder, SimpleFillSymbol,
+             SimpleLineSymbol, IdentifyTask, IdentifyParameters, SimpleMarkerSymbol,
+             InfoTemplate, Graphic, Color, arrayUtils, on ) {
+        
+            map = new Map("mapDiv", { 
+                logo:false,
+                //extent: initialExtent,
+                slider: true,
+                basemap: "streets",         //"satellite", "hybrid", "topo", "gray", "oceans", "osm", "national-geographic", "streets"
+                center: [-92.541, 34.70],               //Arkansas
+                zoom: 8
+            });
+          
+            var AECAM = new ArcGISDynamicMapServiceLayer("http://argis.ualr.edu/ieagis/rest/services/AECAM_MAP/MapServer", {
+            	id: 'AECAM',
+            	opacity: 0.1
+            });     
+    		
+      		  map.addLayer(AECAM);
+      		
+            identifyTask = new IdentifyTask("http://argis.ualr.edu/ieagis/rest/services/AECAM_MAP/MapServer");
+                    
+            //initialize InfoTemplate
+            infoTemplate = new InfoTemplate(null, "County : ${NAME10}<br/> FIPS :  ${STATEFP10}${COUNTYFP10}");
+            
+            identifyParams = new IdentifyParameters();
+            identifyParams.tolerance = 10;
+            identifyParams.layerIds = [88];
+            identifyParams.returnGeometry = true;
+            identifyParams.width = map.width;
+            identifyParams.height = map.height;		
+            pointSymbol = new SimpleMarkerSymbol(
+      			  SimpleMarkerSymbol.STYLE_CIRCLE, 
+      			  15, 
+      			  new SimpleLineSymbol(
+      				SimpleLineSymbol.STYLE_SOLID, 
+      				new Color([0, 0, 255, 0.5]), 
+      				8
+      			  ), 
+      			  new Color([0, 0, 255])
+      			);  
+            // Creating a geographic search box widget for the map
+          	geocoder = new Geocoder({ 
+              map: map ,
+          	  autoComplete: true
+            }, "search");
+          	
+            // Finalize the creation of the widget. Called after the constructor for the widget is called and before interacting with the widget.
+            geocoder.startup();
+            
+
+            geocoder.on("select" ,executeIdentifyTask);
+            
+            function executeIdentifyTask (event) {
+              map.graphics.clear();
+        			var graphic = new Graphic(event.result.feature.geometry, pointSymbol);
+        			map.graphics.add(graphic); 
+    
+              identifyParams.geometry = event.result.feature.geometry;
+              identifyParams.mapExtent = map.extent;
+    
+              var deferred = identifyTask
+                .execute(identifyParams)
+                .addCallback(function (response) {
+                  // response is an array of identify result objects
+                  // Let's return an array of features.
+                  return arrayUtils.map(response, function (result) {
+                    var feature = result.feature;
+                    var layerName = result.layerName;
+                    
+                    var CountyTemplate = new InfoTemplate("${NAME10} County",
+                    "Address : "+ event.result.name+"<br/><br/> FIPS :  ${STATEFP10}${COUNTYFP10}");
+                    feature.setInfoTemplate(CountyTemplate);
+    
+                    return feature;
+                  });
+                });
+    
+              // InfoWindow expects an array of features from each deferred
+              // object that you pass. If the response from the task execution
+              // above is not an array of features, then you need to add a callback
+              // like the one above to post-process the response and return an
+              // array of features.
+              map.infoWindow.setFeatures([deferred]);
+              map.infoWindow.show(event.result.feature.geometry);
+            }		
+    });
+
+    
+  </script>
+
+</head>
+<body class="claro">
+  <div id="mapDiv"><div id="search"></div></div>
+</body>
+</html>

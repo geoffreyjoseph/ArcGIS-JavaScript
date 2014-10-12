@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Create a Map</title>
+  <title>2. Add Map Service</title>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
   <meta name="viewport" content="initial-scale=1, maximum-scale=1,user-scalable=no">
   <link rel="stylesheet" href="http://js.arcgis.com/3.10/js/dojo/dijit/themes/claro/claro.css">
@@ -12,14 +12,6 @@
       margin: 0;
       height: 100%;
     }
-    #search {
-	    width: 450px;
-        display: block;
-        position: absolute;
-        z-index: 20;
-        top: 100px;
-        left: 30px;
-      }
   </style>
   
   <script src="http://js.arcgis.com/3.10/"></script>
@@ -28,31 +20,31 @@
     
     
     
-    require(["esri/map", 
+    require([
+            "esri/map", 
             "esri/layers/ArcGISDynamicMapServiceLayer",
             "dojo/domReady!"], 
-        function(Map, ArcGISDynamicMapServiceLayer) {
+    function(Map, ArcGISDynamicMapServiceLayer) {
 
 
-            map = new Map("mapDiv", { 
-                logo:false,
-                //extent: initialExtent,
-                slider: true,
-                basemap: "national-geographic",         //"satellite", "hybrid", "topo", "gray", "oceans", "osm", "national-geographic", "roads"
-                center: [-92.541, 34.70],
-                zoom: 8
-            });
-          
-          
-          
-            var AECAM = new ArcGISDynamicMapServiceLayer("http://argis.ualr.edu/ieagis/rest/services/AECAM_MAP/MapServer", {
-            	id: 'AECAM',
-            	outFields: ["*"],
-            	//infoTemplate: infoTemplate,
-            	opacity: 0.8
-            });     
-    		
-    		map.addLayer(AECAM);
+        map = new Map("mapDiv", { 
+            logo:false,
+            //extent: initialExtent,
+            slider: true,
+            basemap: "national-geographic",         //"satellite", "hybrid", "topo", "gray", "oceans", "osm", "national-geographic", "roads"
+            center: [-92.541, 34.70],
+            zoom: 8
+        });
+      
+
+        var AECAM = new ArcGISDynamicMapServiceLayer("http://argis.ualr.edu/ieagis/rest/services/AECAM_MAP/MapServer", {
+        	id: 'AECAM',
+        	outFields: ["*"],
+        	//infoTemplate: infoTemplate,
+        	opacity: 0.8
+        });     
+		
+		    map.addLayer(AECAM);
 		
     });
 

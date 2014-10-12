@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Create a Map</title>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
   <meta name="viewport" content="initial-scale=1, maximum-scale=1,user-scalable=no">
+  <title>3. Identify Task</title>
   <link rel="stylesheet" href="http://js.arcgis.com/3.10/js/dojo/dijit/themes/claro/claro.css">
   <link rel="stylesheet" href="http://js.arcgis.com/3.10/js/esri/css/esri.css">
   <style>
@@ -22,14 +22,13 @@
           "esri/layers/ArcGISDynamicMapServiceLayer",
           "esri/tasks/IdentifyTask",
           "esri/tasks/IdentifyParameters",
-          "esri/symbols/SimpleMarkerSymbol",
           "esri/InfoTemplate",
-          "dojo/_base/Color",
           "dojo/_base/array",
           "esri/geometry/Extent", 
           "esri/SpatialReference",
-           "dojo/on",
-          "dojo/domReady!"], function(Map, ArcGISDynamicMapServiceLayer, IdentifyTask, IdentifyParameters, SimpleMarkerSymbol, InfoTemplate, Color, arrayUtils, Extent, SpatialReference, on) {
+          "dojo/on",
+          "dojo/domReady!"], function(Map, ArcGISDynamicMapServiceLayer, IdentifyTask, IdentifyParameters,
+                                      InfoTemplate, arrayUtils, Extent, SpatialReference, on) {
     
         initialExtent = new Extent(172209.475904854, 3601359.1077277837, 985642.8725089643,  4064083.0555859907, new SpatialReference({
                 wkid: 26915  
@@ -63,6 +62,7 @@
         identifyParams.width = map.width;
         identifyParams.height = map.height;
         
+
         map.on("Click", executeIdentifyTask);
         
         function executeIdentifyTask (event) {
