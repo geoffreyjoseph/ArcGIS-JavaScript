@@ -32,6 +32,7 @@
           "esri/SpatialReference",
           "esri/dijit/Popup",
           "dojo/on",
+      	 "esri/config",
           "dojo/domReady!"], 
           
     function(Map, 
@@ -47,8 +48,11 @@
           Extent, 
           SpatialReference, 
           Popup, 
-          on) {
+          on,
+          esariConfig) {
     
+        esriConfig.defaults.io.corsDetection = false;
+      
         initialExtent = new Extent(172209.475904854, 3601359.1077277837, 985642.8725089643,  4064083.0555859907, new SpatialReference({
                 wkid: 26915  
         }));
@@ -61,16 +65,16 @@
             infoWindow: infoTemplate
         });
         
-        var aecam = new ArcGISDynamicMapServiceLayer("http://argis.ualr.edu/ieagis/rest/services/AECAM_MAP/MapServer",{
+        var aecam = new ArcGISDynamicMapServiceLayer("http://argis.ualr.edu/arcgis/rest/services/AECAM_MAP/MapServer",{
     	            id: 'aecam',
     	            outFields: ["*"],
     	            opacity: 0.8
             
         });
         map.addLayer(aecam);
-        map._layers.aecam.setVisibleLayers([0, 88]);
+        map._layers.aecam.setVisibleLayers([0, 79]);
 
-        identifyTask = new IdentifyTask("http://argis.ualr.edu/ieagis/rest/services/AECAM_MAP/MapServer");
+        identifyTask = new IdentifyTask("http://argis.ualr.edu/arcgis/rest/services/AECAM_MAP/MapServer");
         
         
         //identify setup the popup window 
@@ -81,7 +85,7 @@
 
         identifyParams = new IdentifyParameters();
         identifyParams.tolerance = 10;
-        identifyParams.layerIds = [0,88];
+        identifyParams.layerIds = [0,79];
         identifyParams.returnGeometry = true;
         identifyParams.width = map.width;
         identifyParams.height = map.height;
@@ -102,9 +106,9 @@
                 var layerName = result.layerName;
 
                   feature.attributes.layerName = layerName;
-                    if (layerName === 'Better_Beginnings') {
+                    if (layerName === 'Better Beginnings') {
                       var BBTemplate = new InfoTemplate("Better Beginnings",
-                        "${ProviderNa} <br/> License Type: ${LicenseTyp} <br/> Max # Children: ${allowedcap}");
+                        "${ProviderNa} <br/> Facility Type: ${FacilityTy} <br/> Quality Level: ${QualityLev}");
                       feature.setInfoTemplate(BBTemplate);
                     }
                     else if (layerName === 'County') {
