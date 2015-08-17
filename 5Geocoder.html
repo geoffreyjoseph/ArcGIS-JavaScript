@@ -53,21 +53,21 @@
                 zoom: 8
             });
           
-            var AECAM = new ArcGISDynamicMapServiceLayer("http://argis.ualr.edu/ieagis/rest/services/AECAM_MAP/MapServer", {
+            var AECAM = new ArcGISDynamicMapServiceLayer("http://argis.ualr.edu/arcgis/rest/services/AECAM_MAP/MapServer", {
             	id: 'AECAM',
             	opacity: 0.1
             });     
     		
       		  map.addLayer(AECAM);
       		
-            identifyTask = new IdentifyTask("http://argis.ualr.edu/ieagis/rest/services/AECAM_MAP/MapServer");
+            identifyTask = new IdentifyTask("http://argis.ualr.edu/arcgis/rest/services/AECAM_MAP/MapServer");
                     
             //initialize InfoTemplate
             infoTemplate = new InfoTemplate(null, "County : ${NAME10}<br/> FIPS :  ${STATEFP10}${COUNTYFP10}");
             
             identifyParams = new IdentifyParameters();
             identifyParams.tolerance = 10;
-            identifyParams.layerIds = [88];
+            identifyParams.layerIds = [79];
             identifyParams.returnGeometry = true;
             identifyParams.width = map.width;
             identifyParams.height = map.height;		
