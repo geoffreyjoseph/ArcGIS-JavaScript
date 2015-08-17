@@ -50,11 +50,14 @@
             "dojo/parser",
             "esri/geometry/Extent", 
             "esri/SpatialReference",
+            "esri/config",
             "dojo/domReady!"], 
-    function(Map, ArcGISDynamicMapServiceLayer, Geocoder, TOC, Navigation, parser, InitialExtent, SpatialReference) {
+    function(Map, ArcGISDynamicMapServiceLayer, Geocoder, TOC, Navigation, parser, InitialExtent, SpatialReference, esriConfig) {
         
         parser.parse();
 
+        esriConfig.defaults.io.corsDetection = false;
+      
         initialExtent = new InitialExtent(172209.475904854, 3601359.1077277837, 985642.8725089643,  4064083.0555859907, new SpatialReference({
                 wkid: 26915  
         }));
@@ -67,7 +70,7 @@
         });
       
       
-        aecam = new ArcGISDynamicMapServiceLayer("http://argis.ualr.edu/ieagis/rest/services/AECAM_MAP/MapServer", {
+        aecam = new ArcGISDynamicMapServiceLayer("http://argis.ualr.edu/arcgis/rest/services/AECAM_MAP/MapServer", {
         	id: 'aecam',
         	opacity: 0.8
         });     
@@ -85,7 +88,7 @@
         
         aecam.on("load", function () {
                 //navToolbar = new Navigation(map);
-                aecam.setVisibleLayers([5,88]);
+                aecam.setVisibleLayers([79]);
                 toc = new TOC({
                     map: map,
                     layerInfos: [{
