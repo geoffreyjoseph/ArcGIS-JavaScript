@@ -27,9 +27,12 @@
           "esri/geometry/Extent", 
           "esri/SpatialReference",
           "dojo/on",
+      	 "esri/config",
           "dojo/domReady!"], function(Map, ArcGISDynamicMapServiceLayer, IdentifyTask, IdentifyParameters,
-                                      InfoTemplate, arrayUtils, Extent, SpatialReference, on) {
+                                      InfoTemplate, arrayUtils, Extent, SpatialReference, on, esriConfig) {
     
+        esriConfig.defaults.io.corsDetection = false;
+      
         initialExtent = new Extent(172209.475904854, 3601359.1077277837, 985642.8725089643,  4064083.0555859907, new SpatialReference({
                 wkid: 26915  
         }));
@@ -42,7 +45,7 @@
             infoWindow: infoTemplate
         });
         
-        var aecam = new ArcGISDynamicMapServiceLayer("http://argis.ualr.edu/ieagis/rest/services/AECAM_MAP/MapServer",{
+        var aecam = new ArcGISDynamicMapServiceLayer("http://argis.ualr.edu/arcgis/rest/services/AECAM_MAP/MapServer",{
     	            id: 'aecam',
     	            outFields: ["*"],
     	            opacity: 0.8
@@ -50,14 +53,14 @@
         });
         map.addLayer(aecam);
 
-        identifyTask = new IdentifyTask("http://argis.ualr.edu/ieagis/rest/services/AECAM_MAP/MapServer");
+        identifyTask = new IdentifyTask("http://argis.ualr.edu/arcgis/rest/services/AECAM_MAP/MapServer");
         
         //initialize InfoTemplate
         infoTemplate = new InfoTemplate("${NAME10}", "County : ${NAME10}<br/> FIPS :  ${STATEFP10}${COUNTYFP10}");
 
         identifyParams = new IdentifyParameters();
         identifyParams.tolerance = 10;
-        identifyParams.layerIds = [88];
+        identifyParams.layerIds = [79];
         identifyParams.returnGeometry = true;
         identifyParams.width = map.width;
         identifyParams.height = map.height;
