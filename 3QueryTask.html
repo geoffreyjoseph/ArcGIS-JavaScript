@@ -39,7 +39,7 @@
             zoom: 8
         });
         
-        var aecam = new ArcGISDynamicMapServiceLayer("http://argis.ualr.edu/ieagis/rest/services/AECAM_MAP/MapServer",{
+        var aecam = new ArcGISDynamicMapServiceLayer("http://argis.ualr.edu/arcgis/rest/services/AECAM_MAP/MapServer",{
     	            id: 'aecam',
     	            outFields: ["*"],
     	            opacity: 0.8
@@ -49,7 +49,7 @@
     
 
         //initialize query task
-        queryTask = new QueryTask("http://argis.ualr.edu/ieagis/rest/services/AECAM_MAP/MapServer/88");
+        queryTask = new QueryTask("http://argis.ualr.edu/arcgis/rest/services/AECAM_MAP/MapServer/79");
 
         //initialize query
         query = new Query();
